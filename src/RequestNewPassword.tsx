@@ -53,7 +53,7 @@ export default function RequestNewPassword() {
         }
 
         // Step 4: Send email with the new password
-        const resend = new Resend('jean');
+ /*       const resend = new Resend('jean');
 
         try {
             await resend.emails.send({
@@ -67,7 +67,7 @@ export default function RequestNewPassword() {
         } catch (emailError) {
             setMessage('Failed to send email.');
             console.error(emailError);
-        }
+        }*/
     };
 
     return (

@@ -4,7 +4,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faUser } from "@fortawesome/free-solid-svg-icons";
 import { useUser } from "./UserContext"; // Ensure you import useUser
 
-export default function Navigation(): JSX.Element {
+export default function Navigation() {
   const { isLoggedIn, logout } = useUser();
   const navigate = useNavigate();
 

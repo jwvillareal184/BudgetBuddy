@@ -8,17 +8,29 @@ import { useUser } from './UserContext';
 import { supabase } from './supabaseClient';
 // Register Chart.js components
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
+type TransactionType = {
+    id: number;
+    user_id?: string | null; // UUID, can be null
+    type: "expense"; // Enforced by the CHECK constraint
+    title: string;
+    amount: number; // Numeric(10,2) is represented as a number in JavaScript
+    category: string;
+    note?: string | null; // Nullable text
+    created_at?: string | null; // Nullable timestamp (ISO 8601 format as a string)
+  };
 
 export default function Expense() {
+  
     const { user} = useUser();
     console.log(user?.email);
 
-    const [showAddModal, setShowAddModal] = useState(false);
-    const [showEditModal, setShowEditModal] = useState(false);
+    const [showAddModal, setShowAddModal] = useState<boolean>(false);
+    const [showEditModal, setShowEditModal] = useState<boolean>(false);
     const [loading, setLoading] = useState(true);
-    const [transactions, setTransaction] = useState([]);
-    const [selectedTransaction, setSelectedTransaction] = useState(null);
-    const [weeklyExpense, setWeeklyExpense] = useState<Map<string, number>>(new Map()); 
+    const [transactions, setTransaction] = useState<TransactionType[]>([]);
+    const [selectedTransaction, setSelectedTransaction] = useState<TransactionType | null>(null);
+    const [weeklyExpense, setWeeklyExpense] = useState<number>(0);
+
     const [data, setData] = useState<any>(null);
     const [addExpense, setAddExpense] = useState({
         title: '',
@@ -28,10 +40,14 @@ export default function Expense() {
         created_at: new Date().toISOString().slice(0,10)
     });
 
-    const handleChange= (e) => {
-        const {name, value} = e.target;
-        setAddExpense({...addExpense, [name]: value});
-    }
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const { name, value } = e.target;
+        setAddExpense(prevExpense => ({
+            ...prevExpense,
+            [name]: value
+        }));
+    };
+    
 
     
     useEffect(() => {
@@ -84,7 +100,7 @@ export default function Expense() {
         if (error) {
             console.error('Error fetching transactions:', error);
         } else {
-            setTransaction(data);
+            setTransaction(data as TransactionType[]);
             fetchWeeklyExpense(data);
             calculateWeeklyCategoryTrends(data);
             console.log(weeklyExpense)
@@ -92,7 +108,7 @@ export default function Expense() {
         setLoading(false);
     }
 
-    const handleDelete = async (id) => {
+    const handleDelete = async (id: string) => {
         try {
             const { error } = await supabase
                 .from('transactions')
@@ -103,11 +119,10 @@ export default function Expense() {
                 throw error; // Ensure error is caught
             }
     
-            // Update UI by removing the deleted transaction
-            setTransaction(prev => prev.filter(transaction => transaction.id !== id));
+           fetchTransactions();
     
         } catch (error) {
-            console.error("Error deleting transaction:", error.message);
+            console.error("Error deleting transaction:", error);
         }
     };
 
@@ -115,7 +130,7 @@ export default function Expense() {
         if (!selectedTransaction) return;
     
         try {
-            const { data, error } = await supabase
+            const { error } = await supabase
                 .from("transactions")
                 .update({
                     title: selectedTransaction.title,
@@ -123,23 +138,18 @@ export default function Expense() {
                     category: selectedTransaction.category,
                     note: selectedTransaction.note
                 })
-                .eq("id", selectedTransaction.id); // Update where id matches
+                .eq("id", selectedTransaction.id);
     
             if (error) throw error;
-            alert('Transaction updated!');
-            // Update UI: Refresh transactions list
-            setTransactions(prev =>
-                prev.map(transaction =>
-                    transaction.id === selectedTransaction.id ? { ...transaction, ...selectedTransaction } : transaction
-                )
-            );
-            
     
-            handleCloseEditModal(); // Close modal after update
+            alert('Transaction updated!');
+            fetchTransactions(); // Refresh the transactions list
+            handleCloseEditModal(); // Close the modal after update
         } catch (error) {
-            console.error("Error updating transaction:", error.message);
+            console.error("Error updating transaction:", error);
         }
     };
+    
 
     const fetchWeeklyExpense = (transactions: { amount: number; created_at: string }[]) => {
         const currentWeekStart = getCurrentWeekStart();
@@ -184,10 +194,10 @@ export default function Expense() {
         setChartData(categoryTotals);
     };
 
-    const dateConverter = (date) => {
+    const dateConverter = (date: string) => {
         const newDate = new Date(date);
 
-        const options = {year: 'numeric', month: 'long', day: 'numeric'};
+        const options: Intl.DateTimeFormatOptions = { year: 'numeric', month: 'long', day: 'numeric' };
         const formattedDate = newDate.toLocaleDateString('en-US', options);
 
         return formattedDate;
@@ -272,7 +282,7 @@ export default function Expense() {
         setShowAddModal(false);
     }
 
-    const handleShowEditModal = (transaction) => {
+    const handleShowEditModal = (transaction: TransactionType[]) => {
         setShowEditModal(true);
         setSelectedTransaction(transaction);
     }

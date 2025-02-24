@@ -1,6 +1,6 @@
 import {useState, useEffect} from 'react'
 import {Container, Row, Col, Table, ProgressBar, Carousel, Image} from 'react-bootstrap'
-import { Pie, Line } from 'react-chartjs-2'; // Import Pie chart
+import { Line } from 'react-chartjs-2'; // Import Pie chart
 import { Chart as ChartJS, ArcElement, Tooltip, Legend,  CategoryScale, LinearScale, PointElement, LineElement, Title } from 'chart.js';
 import { useUser } from './UserContext';
 import { supabase } from './supabaseClient';
@@ -10,15 +10,36 @@ ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, ArcEleme
 
 
 export default function Dashboard() {
+    type TransactionType = {
+        id: number;
+        user_id?: string | null; // UUID, can be null
+        type: "income" | "expense"; // Enforced by the CHECK constraint
+        title: string;
+        amount: number; // Numeric(10,2) is represented as a number in JavaScript
+        category: string;
+        note?: string | null; // Nullable text
+        created_at?: string | null; // Nullable timestamp (ISO 8601 format as a string)
+      };
+      type Goal = {
+        id: number;
+        user_id: string | null; // UUID can be a string or null
+        title: string;
+        target_amount: number;
+        current_amount: number;
+        note?: string | null; // Optional note field
+        created_at: string; // Supabase returns timestamps as strings
+    };
     const { user} = useUser();
+    
+    
     console.log(user?.email)
-    const [transactions, setTransaction] = useState<any>([]);
+    const [transactions, setTransaction] = useState<TransactionType[]>([]);
     const [chartData, setChartData] = useState<any>({
         labels: [],
         datasets: []
     });
     
-    const [goals, setGoal] = useState<any>([]);
+    const [goals, setGoal] = useState<Goal[]>([]);
     const [totalIncome, setTotalIncome] = useState<number>(0);
     const [totalExpense, setTotalExpense] = useState<number>(0);
     const [balance, setBalance] = useState(0);
@@ -96,32 +117,34 @@ const calculateTotals = (transactions: Transaction[]) => {
 
 
 // Process transactions into monthly income and expense data
-const processTransactionData = (transactions) => {
-    const monthlyData = {};
+type MonthlyData = Record<string, { income: number; expense: number }>;
 
-    // Initialize months with zeros
+const processTransactionData = (transactions: TransactionType[]) => {
+    // Define months
     const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sept', 'Oct', 'Nov', 'Dec'];
-    months.forEach((month) => {
-        monthlyData[month] = { income: 0, expense: 0 };
-    });
 
-    // Populate data
-    transactions.forEach((transaction) => {
-        const date = new Date(transaction.created_at);
-        const monthName = months[date.getMonth()];
-        if (monthName) {
-            if (transaction.type === 'income') {
-                monthlyData[monthName].income += transaction.amount;
-            } else if (transaction.type === 'expense') {
-                monthlyData[monthName].expense += transaction.amount;
-            }
+    // Initialize monthly data
+    const monthlyData: MonthlyData = months.reduce((acc, month) => {
+        acc[month] = { income: 0, expense: 0 };
+        return acc;
+    }, {} as MonthlyData);
+
+    // Process transactions
+    transactions.forEach(({ created_at, type, amount }) => {
+        if (!created_at) return; // Ensure created_at exists
+
+        const date = new Date(created_at);
+        const monthName = months[date.getMonth()]; // Get month name
+
+        if (monthName && type in monthlyData[monthName]) {
+            monthlyData[monthName][type] += amount;
         }
     });
 
-    // Prepare datasets
-    const labels = Object.keys(monthlyData);
-    const incomeData = labels.map((month) => monthlyData[month].income);
-    const expenseData = labels.map((month) => monthlyData[month].expense);
+    // Prepare chart data
+    const labels = months;
+    const incomeData = months.map((month) => monthlyData[month].income);
+    const expenseData = months.map((month) => monthlyData[month].expense);
 
     return {
         labels,
@@ -146,7 +169,8 @@ const processTransactionData = (transactions) => {
     };
 };
 
-const options = {
+
+const option = {
     responsive: true,
     plugins: {
         legend: {
@@ -221,48 +245,46 @@ const options = {
                     className="rounded shadow-sm mt-3 position-relative " 
                    
                 >
-                    <Carousel interval={3000} indicators={false} className="mt-1 mb-1">
-                        {goals.map((goal, index) => {
-                            const progressPercentage = (goal.currentValue / goal.totalValue) * 100;
-
-                            return (
-                                <Carousel.Item key={index}>
-                                    <Container fluid className="text-center p-3">
-                                        <h5 className="fw-bold custom-font-color1">{goal.title}</h5>
-                                        <Container fluid>
-                                            <Container fluid className="d-flex justify-content-center mt-2 mb-1">
-                                                <span className="fw-bold custom-font-color1">
-                                                    {goal.current_amount} / {goal.target_amount}
-                                                </span>
-                                            </Container>
-                                            <ProgressBar className="custom-bg-color4">
-                                                <ProgressBar
-                                                    now={(goal.current_amount / goal.target_amount) * 100}
-                                                    label={`${((goal.current_amount / goal.target_amount) * 100).toFixed(1)}%`}
-                                                    key={1}
-                                                    className="custom-bg-color1 custom-color-font4"
-                                                />
-                                            </ProgressBar>
-                                        </Container>
-                                    </Container>
-                                </Carousel.Item>
-                            );
-                        })}
-                    </Carousel>
+                   <Carousel interval={3000} indicators={false} className="mt-1 mb-1">
+    {goals?.length > 0 ? (
+        goals.map((goal, index) => (
+            <Carousel.Item key={goal.id}> {/* Use `goal.id` instead of `index` */}
+                <Container fluid className="text-center p-3">
+                    <h5 className="fw-bold custom-font-color1">{goal.title}</h5>
+                    <Container fluid>
+                        <Container fluid className="d-flex justify-content-center mt-2 mb-1">
+                            <span className="fw-bold custom-font-color1">
+                                {goal.current_amount} / {goal.target_amount}
+                            </span>
+                        </Container>
+                        <ProgressBar className="custom-bg-color4">
+                            <ProgressBar
+                                now={(goal.current_amount / goal.target_amount) * 100}
+                                label={`${((goal.current_amount / goal.target_amount) * 100).toFixed(1)}%`}
+                                key={goal.id}
+                                className="custom-bg-color1 custom-color-font4"
+                            />
+                        </ProgressBar>
+                    </Container>
+                </Container>
+            </Carousel.Item>
+        ))
+    ) : (
+        <div>No goals available</div>
+    )}
+</Carousel>
                 </Container>
             </Col>
 
-          <Col xs={12} md={8} style={{height: '100%'}}>
-                <Container fluid className="h-100 d-flex align-items-center justify-content-center custom-bg-color4 rounded mt-2" >
-                {chartData && chartData.datasets?.length > 0 ? (
-                    <Line data={chartData} options={options} className='mb-2 mt-3 py-2' />
-                ) : (
-                    <div>Loading chart data...</div>
-                )}
-
-                </Container>
-          
-                </Col>   
+            <Col xs={12} md={8} style={{ height: "100%" }}>
+    <Container fluid className="h-100 d-flex align-items-center justify-content-center custom-bg-color4 rounded mt-2">
+        {chartData?.datasets && chartData.datasets.length > 0 ? (
+            <Line data={chartData}  className="mb-2 mt-3 py-2" options={option}/>
+        ) : (
+            <div>Loading chart data...</div>
+        )}
+    </Container>
+</Col>
 
             </Row>
             <Row className='mx-0 px-0 custom-height-down mt-3'>

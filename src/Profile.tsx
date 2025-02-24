@@ -49,12 +49,13 @@ export default function Profile() {
     }, [user]);
 
     // Handles input changes
-    const handleChange = (e) => {
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setUserData({
             ...userData,
             [e.target.name]: e.target.value
         });
     };
+    
 
     // Handles profile update
     const handleEditProfile = async () => {
@@ -85,7 +86,7 @@ export default function Profile() {
             alert('Profile updated successfully!');
             fetchUser(); // Refresh the data after updating
         } catch (error) {
-            console.error('Unexpected error updating profile:', error.message);
+            console.error('Unexpected error updating profile:', error);
         }
     };
 

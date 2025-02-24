@@ -1,0 +1,310 @@
+@import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@300..700&family=Josefin+Sans:ital,wght@0,100..700;1,100..700&family=Libre+Franklin:ital,wght@0,100..900;1,100..900&family=Merriweather:ital,wght@0,300;0,400;0,700;0,900;1,300;1,400;1,700;1,900&family=Montserrat+Alternates:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@300..700&family=Roboto:wght@100;300;400;500;700&display=swap');
+
+:root {
+  --color1: #FFD0EC ;
+  --color2: #81689D;
+  --color3: #ffffff;
+  --color4: #1F2544;
+  --color5: #474F7A;
+  --font1: 'Poppins', 'sans-srif';
+  --font2: 'Fredoka', 'Roboto';
+}
+
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.background {
+  position: fixed;
+  width: 100vw;
+  height: 100vh;
+  top: 0;
+  left: 0;
+  background: url('./background.png');
+  background-size: cover; /* Ensures full coverage */
+  background-position: center;
+  background-repeat: no-repeat;
+  z-index: -1; /* Moves it behind other content */
+}
+
+.bg-custom-color4 {
+  background-color: var(--color4);
+}
+.custom-font-color1 {
+  color: var(--color1);
+}
+
+.custom-font-color1:hover {
+  color: var(--color1);
+}
+
+.custom-font-color3 {
+  color: var(--color3);
+}
+
+.custom-color-font4 {
+  color: var(--color4);
+}
+
+.custom-color-font5 {
+  color: var(--color5);
+}
+
+.custom-bg-color1 {
+  background-color: var(--color1);
+  border: 10px var(--color1);
+  
+}
+
+
+.custom-bg-color2 {
+  background-color: var(--color2);
+  border-color: var(--color1);
+  border-width: 3px; /* Adjust thickness as needed */
+  border-style: solid;
+}
+
+.custom-bg-color2:hover {
+  background-color: var(--color1);
+  border-color: var(--color2);
+  border-width: 3px; /* Adjust thickness as needed */
+  border-style: solid;
+}
+
+.custom-bg-color4 {
+  background-color: var(--color4);
+}
+
+.custom-bg-color5 {
+  background-color: var(--color5);
+}
+
+.custom-font-family {
+  font-family: var(--font1);
+}
+
+.custom-font-family-fredoka {
+  font-family: var(--font2);
+}
+
+.nav-item-custom {
+  color: var(--color1); /* Default font color */
+  font-size: 1.25rem;
+  font-weight: 400;
+  font-family: var(--font1);
+  text-decoration: none;
+  padding: 8px 12px; /* Keep spacing consistent */
+  position: relative; /* Required for pseudo-element */
+  transition: color 0.3s ease; /* Smooth transition for text color */
+}
+
+/* Pseudo-element for the sliding underline */
+.nav-item-custom::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  width: 0;
+  height: 3px; /* Thickness of the underline */
+  background-color: var(--color1); /* Color of underline */
+  transition: width 0.3s ease, left 0.3s ease; /* Smooth slide effect */
+  transform: translateX(-50%);
+}
+
+/* Hover effect: Change font color & expand the underline */
+.nav-item-custom:hover,
+.nav-item-custom:hover::after {
+  color: var(--color1);
+  width: 100%; /* Expand underline fully */
+}
+
+/* Active (clicked) state: Keep color and underline */
+.nav-item-custom.active,
+.nav-item-custom.active::after {
+  color: var(--color1) !important; /* Ensure color stays */
+  width: 100%; /* Keep underline fully expanded */
+}
+
+.button-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 50px; /* Set a fixed width */
+  height: 50px; /* Set a fixed height */
+  padding: 5px; /* Optional: Adjust spacing inside */
+}
+
+.custom-button {
+  background-color: var(--color3);
+  border: none;
+  color: var(--color4);
+  padding: 10px 20px; 
+  text-align: center;
+  text-decoration: none;
+  font-family: var(--font2);
+  transition: transform 0.3s ease-in-out, background-color 0.3s ease-in-out, color 0.3s ease-in-out; /* Smooth transitions */
+}
+
+.custom-button:hover {
+  background-color: var(--color4);
+  color: var(--color3);
+  transform: scale(1.1); /* Slight pop effect */
+}
+
+/* Optional: Add active effect for click feedback */
+.custom-button:active {
+  transform: scale(1.05); /* Slight press effect */
+  transition: transform 0.1s ease-in-out;
+}
+
+
+.custom-height-30 {
+  height: 25vh;
+}
+
+.custom-height-45 {
+  height: 45vh;
+}
+
+.custom-height-up {
+  height: 35vh;
+}
+
+.custom-height-down {
+  height: 45vh;
+}
+
+.img-bg {
+  position: absolute; /* Change from fixed to absolute for container-specific placement */
+  background: url('./Frame 2.png') no-repeat center center; /* Combined properties */
+  background-size:contain; /* Ensures the image covers the container fully */
+  background-position:initial;
+  height:30vh; /* Ensures the image is centered */
+  z-index: -1; /* Keeps the image behind other content */
+}
+
+.custom-form-input {
+  border: solid 3px var(--color5);
+  transition: all 0.3s ease-in-out;
+}
+
+.custom-form-input:focus {
+  border: solid 3px var(--color5);
+  box-shadow: 0 0 5px var(--color5);
+  outline: none;
+  transform: scale(1.02);
+}
+
+.custom-button5 {
+  background-color: var(--color5);
+  color: var(--color3);
+  border: solid 3px var(--color5);
+  font-family: var(--font2);
+  transition: all 0.3s ease-in-out;
+}
+
+.custom-button5:hover {
+  background-color: var(--color5);
+  color: var(--color3);
+  border: solid 3px var(--color5);
+  font-family: var(--font2);
+  transform: scale(1.02);
+}
+
+.custom-button5:active {
+  background-color: var(--color5) !important;
+  color: var(--color3);
+  border: solid 3px var(--color5);
+  font-family: var(--font2);
+  transform: scale(1.02);
+}
+
+.custom-button1 {
+  background-color: var(--color1);
+  color: var(--color3);
+  border: solid 3px var(--color1);
+  font-family: var(--font2);
+  transition: all 0.3s ease-in-out;
+}
+
+.custom-button1:hover {
+  background-color: var(--color1);
+  color: var(--color3);
+  border: solid 3px var(--color1);
+  font-family: var(--font2);
+  transform: scale(1.02);
+}
+
+.custom-button1:active {
+  background-color: var(--custom5) !important;
+  color: var(--color3);
+  border: solid 3px var(--custom5) !important;
+  font-family: var(--font2);
+  transform: scale(1.02);
+}
+
+.custom-button2 {
+  background-color: var(--color2);
+  color: var(--color3);
+  border: solid 3px var(--color1);
+  font-family: var(--font2);
+  transition: all 0.3s ease-in-out;
+}
+
+.custom-button2:hover {
+  background-color: var(--color1);
+  color: var(--color3);
+  border: solid 3px var(--color2);
+  font-family: var(--font2);
+  transform: scale(1.02);
+}
+
+.custom-button2:active {
+  background-color: var(--color5) !important;
+  color: var(--color3);
+  border: solid 3px var(--color2) !important;
+  font-family: var(--font2);
+  transform: scale(1.02);
+}
+
+
+/* styles.css */
+.custom-dropdown {
+  background-color: var(--color4); /* Background color of the dropdown */
+  border-color: var(--color1); /* Border color */
+}
+
+.custom-dropdown .dropdown-item {
+  color: var(--color4); /* Text color of dropdown items */
+}
+
+.custom-dropdown .dropdown-item:hover,
+.custom-dropdown .dropdown-item:focus {
+  background-color: var(--color4); /* Hover/focus background color */
+  color: var(--color1); /* Hover/focus text color */
+}
+
+.custom-font-color1 {
+  color: var(--color1); /* Icon color */
+}
+
+.carousel-container {
+  min-height: 200px !important; /* Adjust as needed */
+}
+
+@media (max-width: 768px) {
+  .carousel-container {
+    display: grid !important;
+  grid-template-columns: 2fr 1fr !important; /* Three columns with flexible widths */
+  }
+}
+
+
+
+
+
+

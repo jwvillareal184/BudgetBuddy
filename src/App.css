@@ -293,13 +293,14 @@
 }
 
 .carousel-container {
+  display: grid !important;
+  grid-template-columns: 2fr 1fr !important; /* Ensures two columns */
   min-height: 200px !important; /* Adjust as needed */
 }
 
 @media (max-width: 768px) {
   .carousel-container {
-    display: grid !important;
-  grid-template-columns: 2fr 1fr !important; /* Three columns with flexible widths */
+      grid-template-columns: 1fr !important; /* Stack columns on small screens */
   }
 }
 

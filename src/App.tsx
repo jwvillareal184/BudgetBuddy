@@ -12,7 +12,7 @@ import SignUp from "./SignUp";
 import RequestNewPassword from "./RequestNewPassword";
 
 function App() {
-  const { user, isLoggedIn } = useUser();
+  const {isLoggedIn } = useUser();
 
   return (
     <Router>

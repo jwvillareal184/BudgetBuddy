@@ -170,42 +170,46 @@ const processTransactionData = (transactions: TransactionType[]) => {
 };
 
 
-const option = {
+const options = {
     responsive: true,
     plugins: {
         legend: {
-            position: 'top',
+            position: 'top' as const, 
             labels: {
-                color: '#81689D', // Legend text color
+                color: '#81689D',
             }
         },
         title: {
             display: true,
             text: 'Income vs Expense',
-            color: '#FFD0EC', // Title text color
+            color: '#FFD0EC',
             font: {
-                size: 18, // Adjust font size if needed
-                weight: 'bold'
+                size: 18,
+                weight: 'bold' as "bold" | "normal" | "lighter" | "bolder",
             }
+            
         },
         tooltip: {
-            bodyColor: '#FFD0EC', // Tooltip text color
-            titleColor: '#FFD0EC', // Tooltip title color
+            bodyColor: '#FFD0EC',
+            titleColor: '#FFD0EC',
         }
     },
     scales: {
         x: {
             ticks: {
-                color: '#FFD0EC', // X-axis text color
+                color: '#FFD0EC',
             }
         },
         y: {
             ticks: {
-                color: '#FFD0EC', // Y-axis text color
+                color: '#FFD0EC',
             }
         }
     }
 };
+
+
+
 
 
 
@@ -230,64 +234,56 @@ const option = {
     
     return (
         <Container className='px-0 100vh'>
-            <Row className='carousel-container mx-0 px-0 custom-height-up mt-4'>
-            <Col xs={12} md={4} className="rounded mt-2 position-relative">
-                {/* Background Image */}
-                <Image 
-                    src="./Frame 2.png" 
-                    className="shadow-sm rounded w-100 h-100 position-absolute top-0 start-0"
-                    style={{ objectFit: "cover", zIndex: "-1" }}
-                />
-                
-                {/* Container fits inside Col */}
-                <Container 
-                    fluid 
-                    className="rounded shadow-sm mt-3 position-relative " 
-                   
-                >
-                   <Carousel interval={3000} indicators={false} className="mt-1 mb-1">
-    {goals?.length > 0 ? (
-        goals.map((goal, index) => (
-            <Carousel.Item key={goal.id}> {/* Use `goal.id` instead of `index` */}
-                <Container fluid className="text-center p-3">
-                    <h5 className="fw-bold custom-font-color1">{goal.title}</h5>
-                    <Container fluid>
-                        <Container fluid className="d-flex justify-content-center mt-2 mb-1">
-                            <span className="fw-bold custom-font-color1">
-                                {goal.current_amount} / {goal.target_amount}
-                            </span>
+      <Row className="d-md-flex flex-md-row mx-0 px-0 custom-height-up mt-4 mb-4 h-100">
+            <Col xs={12} md={4} className="d-flex align-items-center justify-content-center  ">
+                <Container fluid className='rounded mt-2 position-relative h-100'>
+                <Image fluid src="./Frame 2.png" className="shadow-sm rounded w-100 h-100 position-absolute top-0 start-0" style={{ objectFit: "cover", zIndex: "-1" }}/>
+                        
+                        {/* Container fits inside Col */}
+                        <Container fluid className=" mt-3 position-relative ">
+                        <Carousel interval={3000} indicators={false} className="my-1">
+                                {goals?.length > 0 ? (
+                                    goals.map((goal) => (
+                                        <Carousel.Item key={goal.id}> {/* Use `goal.id` instead of `index` */}
+                                            <Container fluid className="text-center p-3">
+                                                <h5 className="fw-bold custom-font-color1">{goal.title}</h5>
+                                                <Container fluid>
+                                                    <Container fluid className="d-flex justify-content-center mt-2 mb-1">
+                                                        <span className="fw-bold custom-font-color1">
+                                                            {goal.current_amount} / {goal.target_amount}
+                                                        </span>
+                                                    </Container>
+                                                    <ProgressBar className="custom-bg-color4">
+                                                        <ProgressBar
+                                                            now={(goal.current_amount / goal.target_amount) * 100}
+                                                            label={`${((goal.current_amount / goal.target_amount) * 100).toFixed(1)}%`}
+                                                            key={goal.id}
+                                                            className="custom-bg-color1 custom-color-font4"
+                                                        />
+                                                    </ProgressBar>
+                                                </Container>
+                                            </Container>
+                                        </Carousel.Item>
+                                    ))
+                                ) : (
+                                    <div>No goals available</div>
+                                )}
+                            </Carousel>
                         </Container>
-                        <ProgressBar className="custom-bg-color4">
-                            <ProgressBar
-                                now={(goal.current_amount / goal.target_amount) * 100}
-                                label={`${((goal.current_amount / goal.target_amount) * 100).toFixed(1)}%`}
-                                key={goal.id}
-                                className="custom-bg-color1 custom-color-font4"
-                            />
-                        </ProgressBar>
-                    </Container>
-                </Container>
-            </Carousel.Item>
-        ))
-    ) : (
-        <div>No goals available</div>
-    )}
-</Carousel>
                 </Container>
             </Col>
+            <Col xs={12} md={8} className="h-100">
+                <Container fluid className="h-100 d-flex align-items-center justify-content-center custom-bg-color4 rounded mt-2">
+                    {chartData?.datasets?.length > 0 ? (
+                        <Line data={chartData} className="mb-2 mt-3 py-2" options={options} />
+                    ) : (
+                        <div>Loading chart data...</div>
+                    )}
+                </Container>
+            </Col>
+        </Row>
 
-            <Col xs={12} md={8} style={{ height: "100%" }}>
-    <Container fluid className="h-100 d-flex align-items-center justify-content-center custom-bg-color4 rounded mt-2">
-        {chartData?.datasets && chartData.datasets.length > 0 ? (
-            <Line data={chartData}  className="mb-2 mt-3 py-2" options={option}/>
-        ) : (
-            <div>Loading chart data...</div>
-        )}
-    </Container>
-</Col>
-
-            </Row>
-            <Row className='mx-0 px-0 custom-height-down mt-3'>
+            <Row className='mx-0 px-0 custom-height-down'>
       
             <Col md={12} className='rounded mt-2'>
             <Row className='d-flex'>

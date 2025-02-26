@@ -9,7 +9,7 @@ import { supabase } from './supabaseClient';
 // Register Chart.js components
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 type TransactionType = {
-    id: number;
+    id: string;
     user_id?: string | null; // UUID, can be null
     type: "expense"; // Enforced by the CHECK constraint
     title: string;
@@ -40,15 +40,13 @@ export default function Expense() {
         created_at: new Date().toISOString().slice(0,10)
     });
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
         setAddExpense(prevExpense => ({
             ...prevExpense,
             [name]: value
         }));
     };
-    
-
     
     useEffect(() => {
         fetchTransactions();
@@ -240,7 +238,7 @@ export default function Expense() {
                 color: '#FFD0EC', // Color for title text
                 font: {
                     
-                    weight: 'bold', // Optional: Make text bold
+                    weight: 'bold' as "bold" | "normal" | "lighter" | "bolder", // Optional: Make text bold
                 },
             },
         },
@@ -264,15 +262,6 @@ export default function Expense() {
         },
     };
     
-    
-
-  const MyChart = () => {
-    return (
-        <div>
-            {data ? <Bar data={data} options={options} /> : <p>No data available</p>}
-        </div>
-    );
-};
 
     const handleShowAddModal = () => {
         setShowAddModal(true);
@@ -282,11 +271,11 @@ export default function Expense() {
         setShowAddModal(false);
     }
 
-    const handleShowEditModal = (transaction: TransactionType[]) => {
+    const handleShowEditModal = (transactionData: TransactionType) => {
         setShowEditModal(true);
-        setSelectedTransaction(transaction);
-    }
-
+        setSelectedTransaction(transactionData);
+    };
+    
     const handleCloseEditModal = () => {
         setShowEditModal(false);
     }
@@ -327,15 +316,38 @@ export default function Expense() {
                     </Row>
 
 
-                    <Row className='custom-height-45 custom-bg-color5 rounded mt-3 shadow-sm'>
-                        <Container fluid className='h-100 shadow-sm'>
-                            <h4 className='mt-3 mb-3 text-left custom-font-color1 custom-font-family fw-semibold'>Trend</h4>
-                            <MyChart />
-                            
+                    <Row className="custom-height-45 custom-bg-color5 rounded mt-3 shadow-sm">
+  <Container fluid className="h-100 shadow-sm d-flex flex-column">
+    <h4 className="mt-3 mb-3 text-left custom-font-color1 custom-font-family fw-semibold">
+      Trend
+    </h4>
+    <Container fluid className="flex-grow-1 d-flex justify-content-center align-items-center">
+  <div style={{ width: "100%", height: "100%" }}> 
+    {data ? (
+      <Bar
+        data={data}
+        options={{
+          ...options,
+          responsive: true,
+          maintainAspectRatio: false, // Allows full width and height usage
+          plugins: {
+            legend: {
+              display: true,
+              position: "bottom", // Moves legend below to prevent overlap
+            },
+          },
+        }}
+      />
+    ) : (
+      <p>No data available</p>
+    )}
+  </div>
+</Container>
 
-                        </Container>
-                    </Row>
-                    
+  </Container>
+</Row>
+
+
                     </Col>
                     <Col md={9}>
                      
@@ -358,7 +370,7 @@ export default function Expense() {
                                             <p className='fs-6 custom-font-color4 my-2 mx-2'>{transaction.amount}</p></Col>
                                             <Col className='d-flex align-items-center'>
                                             <FontAwesomeIcon icon={faCalendar} className='rounded-pill custom-font-color3 px-2 py-2 custom-bg-color4'/>
-                                            <p className='fs-6 custom-font-color4 my-2 mx-2'>{dateConverter(transaction.created_at)}</p>
+                                            <p className='fs-6 custom-font-color4 my-2 mx-2'>{transaction.created_at ? dateConverter(transaction.created_at) : "No Date Available"}</p>
                                              </Col>
                                             <Col className='d-flex align-items-center'>
                                             <FontAwesomeIcon icon={faNoteSticky} className='rounded-pill custom-font-color3 px-2 py-2 custom-bg-color4'/> 
@@ -402,31 +414,58 @@ export default function Expense() {
                     <Modal.Title className='custom-font-family-fredoka custom-color-font5 fw-semibold fs-4'>Add Expense</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
-                    <Form className='d-grid gap-2'>
-                        <Form.Group controlId="formBasicExpense">
-                            <Form.Control name="title" className='rounded-pill py-2 px-3 fs-6 custom-color-font5 fw-regular custom-form-input' value={addExpense.title} onChange={handleChange} type='text' placeholder='Title'/>
-                        </Form.Group>
-                        <Form.Group controlId='formBasicExpense'>
-                            <Form.Control name="amount" className='rounded-pill py-2 px-3 fs-6 custom-color-font5 fw-regular custom-form-input' value={addExpense.amount} onChange={handleChange} type='number' placeholder='Amount'/>
-                        </Form.Group>
-                      
-                        <Form.Group controlId='formBasicExpense'>
-                            <Form.Select name="category" className='rounded-pill py-2 px-3 fs-6 custom-color-font5 fw-regular custom-form-input' value={addExpense.category } onChange={handleChange}>
-                                <option value=''>Select Category</option>
-                                <option value='Household Expenses'>Household Expenses</option>
-                                <option value='Transportation'>Transportation</option>
-                                <option value='Food'>Food</option>
-                                <option value='Health & Wellness'>Health & Wellness</option>
-                                <option value='Personal & Lifestyle'>Personal & Lifestyle</option>
-                                <option value='Education'>Education</option>
-                                <option value='Debt & Financial Obligations'>Debt & Financial Obligations</option>
-                                <option value='Miscellaneous'>Miscellaneous</option>
-                            </Form.Select>
-                        </Form.Group>
-                        <Form.Group controlId='formBasicExpense'>
-                            <Form.Control name="note" className='rounded-pill py-2 px-3 fs-6 custom-color-font5 fw-regular custom-form-input' value={addExpense.note} onChange={handleChange} type='textarea' placeholder='Note'/>
-                        </Form.Group>
-                    </Form>
+                <Form className='d-grid gap-2'>
+                    <Form.Group controlId="formBasicExpense">
+                        <Form.Control 
+                            name="title" 
+                            className='rounded-pill py-2 px-3 fs-6 custom-color-font5 fw-regular custom-form-input' 
+                            value={addExpense.title} 
+                            onChange={handleChange} 
+                            type='text' 
+                            placeholder='Title'
+                        />
+                    </Form.Group>
+                    
+                    <Form.Group controlId='formBasicExpense'>
+                        <Form.Control 
+                            name="amount" 
+                            className='rounded-pill py-2 px-3 fs-6 custom-color-font5 fw-regular custom-form-input' 
+                            value={addExpense.amount} 
+                            onChange={handleChange} 
+                            type='number' 
+                            placeholder='Amount'
+                        />
+                    </Form.Group>
+
+                    <Form.Group controlId='formBasicExpense'>
+                        <Form.Select
+                            name="category"
+                            className='rounded-pill py-2 px-3 fs-6 custom-color-font5 fw-regular custom-form-input'
+                            value={addExpense.category || ''}
+                            onChange={handleChange} 
+                        >
+                            <option value=''>Select Category</option>
+                            {[
+                                'Household Expenses', 'Transportation', 'Food', 'Health & Wellness',
+                                'Personal & Lifestyle', 'Education', 'Debt & Financial Obligations', 'Miscellaneous'
+                            ].map(category => (
+                                <option key={category} value={category}>{category}</option>
+                            ))}
+                        </Form.Select>
+                    </Form.Group>
+
+                    <Form.Group controlId='formBasicExpense'>
+                        <Form.Control 
+                            name="note" 
+                            type="type" 
+                            className='rounded-pill py-2 px-3 fs-6 custom-color-font5 fw-regular custom-form-input' 
+                            value={addExpense.note} 
+                            onChange={handleChange} 
+                            placeholder='Note'
+                        />
+                    </Form.Group>
+                </Form>
+
 
                 </Modal.Body>
                 <Modal.Footer>
@@ -435,34 +474,52 @@ export default function Expense() {
             </Modal>
 
             <Modal show={showEditModal} onHide={handleCloseEditModal}>
-    <Modal.Header closeButton>
-        <Modal.Title className='custom-font-family-fredoka custom-color-font5 fw-semibold fs-4'>Edit Expense</Modal.Title>
-    </Modal.Header>
-    <Modal.Body>
-        <Form className='d-grid gap-2'>
-            <Form.Group controlId="formBasicIncome">
-                <Form.Control 
-                    className='rounded-pill py-2 px-3 fs-6 custom-color-font5 fw-regular custom-form-input' 
-                    type='text' 
-                    placeholder='Title' 
-                    value={selectedTransaction?.title || ''} 
-                    onChange={(e) => setSelectedTransaction(prev => ({ ...prev, title: e.target.value }))} 
-                />
-            </Form.Group>
-            <Form.Group controlId='formBasicIncome'>
-                <Form.Control 
-                    className='rounded-pill py-2 px-3 fs-6 custom-color-font5 fw-regular custom-form-input' 
-                    type='number' 
-                    placeholder='Amount' 
-                    value={selectedTransaction?.amount || ''} 
-                    onChange={(e) => setSelectedTransaction(prev => ({ ...prev, amount: e.target.value }))} 
-                />
-            </Form.Group>
-            <Form.Group controlId='formBasicIncome'>
-                <Form.Select 
-                    className='rounded-pill py-2 px-3 fs-6 custom-color-font5 fw-regular custom-form-input'
-                    value={selectedTransaction?.category || ''} 
-                    onChange={(e) => setSelectedTransaction(prev => ({ ...prev, category: e.target.value }))}>
+                <Modal.Header closeButton>
+                    <Modal.Title className='custom-font-family-fredoka custom-color-font5 fw-semibold fs-4'>Edit Expense</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                <Form className='d-grid gap-2'>
+                <Form.Group controlId="formBasicTitle">
+                    <Form.Control 
+                        className='rounded-pill py-2 px-3 fs-6 custom-color-font5 fw-regular custom-form-input' 
+                        type='text' 
+                        placeholder='Title' 
+                        value={selectedTransaction?.title || ''} 
+                        onChange={(e) => 
+                            setSelectedTransaction(prev => prev 
+                                ? { ...prev, title: e.target.value } 
+                                : { title: e.target.value, amount: 0, category: '', note: '', id: '', user_id: null, type: "expense", created_at: '' }
+                            )
+                        }
+                    />
+                </Form.Group>
+                
+                <Form.Group controlId='formBasicAmount'>
+                    <Form.Control 
+                        className='rounded-pill py-2 px-3 fs-6 custom-color-font5 fw-regular custom-form-input' 
+                        type='number' 
+                        placeholder='Amount' 
+                        value={selectedTransaction?.amount || ''} 
+                        onChange={(e) => 
+                            setSelectedTransaction(prev => prev 
+                                ? { ...prev, amount: Number(e.target.value) } 
+                                : { title: '', amount: Number(e.target.value), category: '', note: '', id: '', user_id: null, type: "expense", created_at: '' }
+                            )
+                        }
+                    />
+                </Form.Group>
+                
+                <Form.Group controlId='formBasicCategory'>
+                    <Form.Select 
+                        className='rounded-pill py-2 px-3 fs-6 custom-color-font5 fw-regular custom-form-input'
+                        value={selectedTransaction?.category || ''} 
+                        onChange={(e) => 
+                            setSelectedTransaction(prev => prev 
+                                ? { ...prev, category: e.target.value } 
+                                : { title: '', amount: 0, category: e.target.value, note: '', id: '', user_id: null, type: "expense", created_at: '' }
+                            )
+                        }
+                    >
                         <option value=''>Select Category</option>
                         <option value='Household Expenses'>Household Expenses</option>
                         <option value='Transportation'>Transportation</option>
@@ -472,23 +529,30 @@ export default function Expense() {
                         <option value='Education'>Education</option>
                         <option value='Debt & Financial Obligations'>Debt & Financial Obligations</option>
                         <option value='Miscellaneous'>Miscellaneous</option>
-                </Form.Select>
-            </Form.Group>
-            <Form.Group controlId='formBasicIncome'>
-                <Form.Control 
-                    className='rounded-pill py-2 px-3 fs-6 custom-color-font5 fw-regular custom-form-input' 
-                    type='text' 
-                    placeholder='Note' 
-                    value={selectedTransaction?.note || ''} 
-                    onChange={(e) => setSelectedTransaction(prev => ({ ...prev, note: e.target.value }))} 
-                />
-            </Form.Group>
-        </Form>
-    </Modal.Body>
-    <Modal.Footer>
-        <Button className='rounded-pill w-100 py-2 px-3 fs-6 custom-button5 fw-semibold' onClick={handleEditTransaction}>Update</Button>
-    </Modal.Footer>
-</Modal>
+                    </Form.Select>
+                </Form.Group>
+                
+                <Form.Group controlId='formBasicNote'>
+                    <Form.Control 
+                        className='rounded-pill py-2 px-3 fs-6 custom-color-font5 fw-regular custom-form-input' 
+                        type='text' 
+                        placeholder='Note' 
+                        value={selectedTransaction?.note || ''} 
+                        onChange={(e) => 
+                            setSelectedTransaction(prev => prev 
+                                ? { ...prev, note: e.target.value } 
+                                : { title: '', amount: 0, category: '', note: e.target.value, id: '', user_id: null, type: "expense", created_at: '' }
+                            )
+                        }
+                    />
+                </Form.Group>
+            </Form>
+
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button className='rounded-pill w-100 py-2 px-3 fs-6 custom-button5 fw-semibold' onClick={handleEditTransaction}>Update</Button>
+                </Modal.Footer>
+            </Modal>
 
         </Container>
     );

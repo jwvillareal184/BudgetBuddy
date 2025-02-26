@@ -10,28 +10,48 @@ import { supabase } from './supabaseClient';
 // Register required Chart.js components
 ChartJS.register(ArcElement, Tooltip, Legend);
 
+type TransactionType = {
+    id: string;
+    user_id?: string | null; // UUID, can be null
+    type: "income"; // Enforced by the CHECK constraint
+    title: string;
+    amount: number; // Numeric(10,2) is represented as a number in JavaScript
+    category: string;
+    note?: string | null; // Nullable text
+    created_at?: string | null; // Nullable timestamp (ISO 8601 format as a string)
+  };
+
 export default function Income() {
     const { user} = useUser();
     console.log(user?.email);
     const [showAddModal, setShowAddModal] = useState<boolean>(false);
     const [showEditModal, setShowEditModal] = useState<boolean>(false);
     const [loading, setLoading] = useState(true);
-    const [transactions, setTransaction] = useState<any>([]);
-    const [selectedTransaction, setSelectedTransaction] = useState<any>(null);
-    const [weeklyIncome, setWeeklyIncome] = useState<Map<string, number>>(new Map()); 
+    const [transactions, setTransaction] = useState<TransactionType[]>([]);
+    const [selectedTransaction, setSelectedTransaction] = useState<TransactionType | null>(null);
+    const [weeklyIncome, setWeeklyIncome] = useState<number>(0);
     const [data, setData] = useState<any>(null);
 
-    const [pieChartData, setPieChartData] = useState({
+    interface PieChartData {
+        labels: string[];
+        datasets: {
+            data: number[];
+            backgroundColor: string[];
+            borderColor: string[];
+            borderWidth: number;
+        }[];
+    }
+    
+    const [pieChartData, setPieChartData] = useState<PieChartData>({
         labels: [],
         datasets: [
             {
                 data: [],
-                backgroundColor: ['#FFD0EC', '#81689D', '#ffffff', '#1F2544', '#474F7A'],
-                borderColor: ['#FFD0EC', '#FFD0EC', '#FFD0EC', '#FFD0EC', '#FFD0EC'],
+                backgroundColor: [],
+                borderColor: [],
                 borderWidth: 1,
             },
         ],
-        
     });
     
 
@@ -47,7 +67,7 @@ export default function Income() {
         created_at: new Date().toISOString().slice(0,10)
     });
 
-    const handleChange= (e) => {
+    const handleChange= (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
         const {name, value} = e.target;
         setAddIncome({...addIncome, [name]: value});
     }
@@ -85,7 +105,7 @@ export default function Income() {
 
     }
 
-        const handleDelete = async (id) => {
+        const handleDelete = async (id: string) => {
             try {
                 const { error } = await supabase
                     .from('transactions')
@@ -95,12 +115,10 @@ export default function Income() {
                 if (error) {
                     throw error; // Ensure error is caught
                 }
-        
-                // Update UI by removing the deleted transaction
-                setTransaction(prev => prev.filter(transaction => transaction.id !== id));
+                fetchTransactions();
         
             } catch (error) {
-                console.error("Error deleting transaction:", error.message);
+                console.error("Error deleting transaction:", error);
             }
         };
 
@@ -108,7 +126,7 @@ export default function Income() {
             if (!selectedTransaction) return;
         
             try {
-                const { data, error } = await supabase
+                const { error } = await supabase
                     .from("transactions")
                     .update({
                         title: selectedTransaction.title,
@@ -121,28 +139,24 @@ export default function Income() {
                 if (error) throw error;
                 alert('Transaction updated!');
                 // Update UI: Refresh transactions list
-                setTransactions(prev =>
-                    prev.map(transaction =>
-                        transaction.id === selectedTransaction.id ? { ...transaction, ...selectedTransaction } : transaction
-                    )
-                );
+              fetchTransactions();
                 
         
                 handleCloseEditModal(); // Close modal after update
             } catch (error) {
-                console.error("Error updating transaction:", error.message);
+                console.error("Error updating transaction:", error);
             }
         };
 
-        const dateConverter = (date) => {
+        const dateConverter = (date: string) => {
             const newDate = new Date(date);
     
-            const options = {year: 'numeric', month: 'long', day: 'numeric'};
+            const options: Intl.DateTimeFormatOptions = { year: 'numeric', month: 'long', day: 'numeric' };
             const formattedDate = newDate.toLocaleDateString('en-US', options);
     
             return formattedDate;
         }
-    
+        
     const fetchTransactions = async () => {
         if (!user) return;
         setLoading(true);
@@ -188,15 +202,15 @@ export default function Income() {
         return now;
     };
 
-    const calculateWeeklyCategoryTrends = (transactions: { amount: number; created_at: string; category: string }[]) => {
+    const calculateWeeklyCategoryTrends = (
+        transactions: { amount: number; created_at: string; category: string }[]
+    ) => {
         const currentWeekStart = getCurrentWeekStart();
         const categoryTotals: { [key: string]: number } = {};
     
         transactions.forEach(transaction => {
             const date = new Date(transaction.created_at);
-            // Check if the transaction date is within the current week
             if (date >= currentWeekStart && date < new Date(currentWeekStart.getTime() + 7 * 24 * 60 * 60 * 1000)) {
-                // Sum amounts by category
                 if (!categoryTotals[transaction.category]) {
                     categoryTotals[transaction.category] = 0;
                 }
@@ -204,9 +218,8 @@ export default function Income() {
             }
         });
     
-        // Prepare data for the pie chart
-        const labels = Object.keys(categoryTotals);
-        const dataValues = Object.values(categoryTotals);
+        const labels: string[] = Object.keys(categoryTotals);
+        const dataValues: number[] = Object.values(categoryTotals);
     
         setPieChartData({
             labels,
@@ -221,6 +234,7 @@ export default function Income() {
         });
     };
     
+    
 
     const handleShowAddModal = () => {
         setShowAddModal(true);
@@ -230,7 +244,7 @@ export default function Income() {
         setShowAddModal(false);
     }
 
-    const handleShowEditModal = (transaction) => {
+    const handleShowEditModal = (transaction: TransactionType) => {
         setShowEditModal(true);
         setSelectedTransaction(transaction)
     }
@@ -310,7 +324,7 @@ export default function Income() {
                                             <p className='fs-6 custom-font-color4 my-2 mx-2'>{transaction.amount}</p></Col>
                                             <Col className='d-flex align-items-center'>
                                             <FontAwesomeIcon icon={faCalendar} className='rounded-pill custom-font-color3 px-2 py-2 custom-bg-color4'/>
-                                            <p className='fs-6 custom-font-color4 my-2 mx-2'>{dateConverter(transaction.created_at)}</p>
+                                            <p className='fs-6 custom-font-color4 my-2 mx-2'>{transaction.created_at ? dateConverter(transaction.created_at) : "No Date Available"}</p>
                                              </Col>
                                             <Col className='d-flex align-items-center'>
                                             <FontAwesomeIcon icon={faNoteSticky} className='rounded-pill custom-font-color3 px-2 py-2 custom-bg-color4'/> 
@@ -396,7 +410,12 @@ export default function Income() {
                                 type='text' 
                                 placeholder='Title' 
                                 value={selectedTransaction?.title || ''} 
-                                onChange={(e) => setSelectedTransaction(prev => ({ ...prev, title: e.target.value }))} 
+                                onChange={(e) => 
+                                    setSelectedTransaction(prev => prev 
+                                        ? { ...prev, title: e.target.value } 
+                                        : { title: e.target.value, amount: 0, category: '', note: '', id: '', user_id: null, type: "income", created_at: '' }
+                                    )
+                                }
                             />
                         </Form.Group>
                         <Form.Group controlId='formBasicIncome'>
@@ -405,14 +424,24 @@ export default function Income() {
                                 type='number' 
                                 placeholder='Amount' 
                                 value={selectedTransaction?.amount || ''} 
-                                onChange={(e) => setSelectedTransaction(prev => ({ ...prev, amount: e.target.value }))} 
+                                onChange={(e) => 
+                                    setSelectedTransaction(prev => prev 
+                                        ? { ...prev, amount: Number(e.target.value) } 
+                                        : { title: '', amount: Number(e.target.value), category: '', note: '', id: '', user_id: null, type: "income", created_at: '' }
+                                    )
+                                }
                             />
                         </Form.Group>
                         <Form.Group controlId='formBasicIncome'>
                             <Form.Select 
                                 className='rounded-pill py-2 px-3 fs-6 custom-color-font5 fw-regular custom-form-input'
                                 value={selectedTransaction?.category || ''} 
-                                onChange={(e) => setSelectedTransaction(prev => ({ ...prev, category: e.target.value }))}>
+                                onChange={(e) => 
+                                    setSelectedTransaction(prev => prev 
+                                        ? { ...prev, category: e.target.value } 
+                                        : { title: '', amount: 0, category: e.target.value, note: '', id: '', user_id: null, type: "income", created_at: '' }
+                                    )
+                                }>
                                     <option value=''>Select Category</option>
                                     <option value='Salary & Wages'>Salary & Wages</option>
                                     <option value='Business & Self-Employment'>Business & Self-Employment</option>
@@ -427,7 +456,12 @@ export default function Income() {
                                 type='text' 
                                 placeholder='Note' 
                                 value={selectedTransaction?.note || ''} 
-                                onChange={(e) => setSelectedTransaction(prev => ({ ...prev, note: e.target.value }))} 
+                                onChange={(e) => 
+                            setSelectedTransaction(prev => prev 
+                                ? { ...prev, note: e.target.value } 
+                                : { title: '', amount: 0, category: '', note: e.target.value, id: '', user_id: null, type: "income", created_at: '' }
+                            )
+                        }
                             />
                         </Form.Group>
                     </Form>

@@ -5,16 +5,24 @@ import { faTrash, faEdit, faPesoSign, faCalendar, faNoteSticky } from '@fortawes
 import { useUser } from './UserContext';
 import { supabase } from './supabaseClient';
 
-
+type GoalType = {
+    id: number;
+    user_id?: string | null; // UUID, can be null
+    title: string;
+    target_amount: number;
+    current_amount: number; // Numeric(10,2) is represented as a number in JavaScript
+    note?: string | null; // Nullable text
+    created_at?: string | null; // Nullable timestamp (ISO 8601 format as a string)
+  };
 
 export default function Goal() {
     const { user} = useUser();
     console.log(user?.email);
-    const [showAddModal, setShowAddModal] = useState(false);
-    const [showEditModal, setShowEditModal] = useState(false);
-    const [loading, setLoading] = useState(true);
-    const [goals, setGoal] = useState([]);
-    const [selectedGoal, setSelectedGoal] = useState(null);
+    const [showAddModal, setShowAddModal] = useState<boolean>(false);
+    const [showEditModal, setShowEditModal] = useState<boolean>(false);
+    const [loading, setLoading] = useState<boolean>(true);
+    const [goals, setGoal] = useState<GoalType[]>([]);
+    const [selectedGoal, setSelectedGoal] = useState<GoalType | null>(null);
 
     const [addGoal, setAddGoal] = useState({
         title: '',
@@ -24,7 +32,7 @@ export default function Goal() {
         created_at: new Date().toISOString().slice(0,10)
     });
 
-    const handleChange= (e) => {
+    const handleChange= (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
         const {name, value} = e.target;
         setAddGoal({...addGoal, [name]: value});
     }
@@ -79,7 +87,7 @@ export default function Goal() {
         setLoading(false);
     }
 
-    const handleDelete = async (id) => {
+    const handleDelete = async (id: number) => {
         try {
             const { error } = await supabase
                 .from('goals')
@@ -94,7 +102,7 @@ export default function Goal() {
             setGoal(prev => prev.filter(Goal => Goal.id !== id));
     
         } catch (error) {
-            console.error("Error deleting Goal:", error.message);
+            console.error("Error deleting Goal:", error);
         }
     };
 
@@ -106,7 +114,7 @@ export default function Goal() {
         if (!selectedGoal) return;
     
         try {
-            const { data, error } = await supabase
+            const {  error } = await supabase
                 .from("goals")
                 .update({
                     title: selectedGoal.title,
@@ -119,16 +127,12 @@ export default function Goal() {
             if (error) throw error;
             alert('Goal updated!');
             // Update UI: Refresh Goals list
-            setGoal(prev =>
-                prev.map(goals =>
-                    goals.id === selectedGoal.id ? { ...goals, ...selectedGoal } : Goal
-                )
-            );
+           fetchGoals();
             
     
             handleCloseEditModal(); // Close modal after update
         } catch (error) {
-            console.error("Error updating Goal:", error.message);
+            console.error("Error updating Goal:", error);
         }
     };
 
@@ -146,7 +150,7 @@ export default function Goal() {
         setShowAddModal(false);
     }
 
-    const handleShowEditModal = (goal) => {
+    const handleShowEditModal = (goal: GoalType) => {
         setShowEditModal(true);
         setSelectedGoal(goal);
     }
@@ -254,48 +258,76 @@ export default function Goal() {
         <Modal.Title className='custom-font-family-fredoka custom-color-font5 fw-semibold fs-4'>Edit Goal</Modal.Title>
     </Modal.Header>
     <Modal.Body>
-        <Form className='d-grid gap-2'>
-            <Form.Group controlId="formBasicIncome">
-                <Form.Control 
-                    className='rounded-pill py-2 px-3 fs-6 custom-color-font5 fw-regular custom-form-input' 
-                    name='title'
-                    type='text' 
-                    placeholder='Title' 
-                    value={selectedGoal?.title || ''} 
-                    onChange={(e) => setSelectedGoal(prev => ({ ...prev, title: e.target.value }))} 
-                />
-            </Form.Group>
-            <Form.Group controlId='formBasicIncome'>
-                <Form.Control 
-                    className='rounded-pill py-2 px-3 fs-6 custom-color-font5 fw-regular custom-form-input' 
-                    name='target_amount'
-                    type='number' 
-                    placeholder='Target Amount' 
-                    value={selectedGoal?.target_amount || ''} 
-                    onChange={(e) => setSelectedGoal(prev => ({ ...prev, target_amount: e.target.value }))} 
-                />
-            </Form.Group>
-            <Form.Group controlId='formBasicIncome'>
-                <Form.Control 
-                    className='rounded-pill py-2 px-3 fs-6 custom-color-font5 fw-regular custom-form-input' 
-                    name='current_amount'
-                    type='number' 
-                    placeholder='Current Amount' 
-                    value={selectedGoal?.current_amount || ''} 
-                    onChange={(e) => setSelectedGoal(prev => ({ ...prev, current_amount: e.target.value }))} 
-                />
-            </Form.Group>
-            <Form.Group controlId='formBasicIncome'>
-                <Form.Control 
-                    className='rounded-pill py-2 px-3 fs-6 custom-color-font5 fw-regular custom-form-input' 
-                    name='note'
-                    type='text' 
-                    placeholder='Note' 
-                    value={selectedGoal?.note || ''} 
-                    onChange={(e) => setSelectedGoal(prev => ({ ...prev, note: e.target.value }))} 
-                />
-            </Form.Group>
-        </Form>
+    <Form className='d-grid gap-2'>
+    {/* Title Field */}
+    <Form.Group controlId="formBasicIncome">
+        <Form.Control 
+            className='rounded-pill py-2 px-3 fs-6 custom-color-font5 fw-regular custom-form-input' 
+            name='title'
+            type='text' 
+            placeholder='Title' 
+            value={selectedGoal?.title || ''} 
+            onChange={(e) => 
+                setSelectedGoal(prev => prev 
+                    ? { ...prev, title: e.target.value } 
+                    : { id: 0, user_id: null, title: e.target.value, target_amount: 0, current_amount: 0, note: '', created_at: '' }
+                )
+            }
+        />
+    </Form.Group>
+
+    {/* Target Amount Field */}
+    <Form.Group controlId='formBasicTargetAmount'>
+        <Form.Control 
+            className='rounded-pill py-2 px-3 fs-6 custom-color-font5 fw-regular custom-form-input' 
+            name='target_amount'
+            type='number' 
+            placeholder='Target Amount' 
+            value={selectedGoal?.target_amount || ''} 
+            onChange={(e) => 
+                setSelectedGoal(prev => prev 
+                    ? { ...prev, target_amount: parseFloat(e.target.value) || 0 } 
+                    : { id: 0, user_id: null, title: '', target_amount: parseFloat(e.target.value) || 0, current_amount: 0, note: '', created_at: '' }
+                )
+            }
+        />
+    </Form.Group>
+
+    {/* Current Amount Field */}
+    <Form.Group controlId='formBasicCurrentAmount'>
+        <Form.Control 
+            className='rounded-pill py-2 px-3 fs-6 custom-color-font5 fw-regular custom-form-input' 
+            name='current_amount'
+            type='number' 
+            placeholder='Current Amount' 
+            value={selectedGoal?.current_amount || ''} 
+            onChange={(e) => 
+                setSelectedGoal(prev => prev 
+                    ? { ...prev, current_amount: parseFloat(e.target.value) || 0 } 
+                    : { id: 0, user_id: null, title: '', target_amount: 0, current_amount: parseFloat(e.target.value) || 0, note: '', created_at: '' }
+                )
+            }
+        />
+    </Form.Group>
+
+    {/* Note Field */}
+    <Form.Group controlId='formBasicNote'>
+        <Form.Control 
+            className='rounded-pill py-2 px-3 fs-6 custom-color-font5 fw-regular custom-form-input' 
+            name='note'
+            type='text' 
+            placeholder='Note' 
+            value={selectedGoal?.note || ''} 
+            onChange={(e) => 
+                setSelectedGoal(prev => prev 
+                    ? { ...prev, note: e.target.value } 
+                    : { id: 0, user_id: null, title: '', target_amount: 0, current_amount: 0, note: e.target.value, created_at: '' }
+                )
+            }
+        />
+    </Form.Group>
+</Form>
+
     </Modal.Body>
     <Modal.Footer>
         <Button className='rounded-pill w-100 py-2 px-3 fs-6 custom-button5 fw-semibold' onClick={handleEditGoal}>Edit</Button>

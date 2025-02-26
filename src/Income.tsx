@@ -30,7 +30,6 @@ export default function Income() {
     const [transactions, setTransaction] = useState<TransactionType[]>([]);
     const [selectedTransaction, setSelectedTransaction] = useState<TransactionType | null>(null);
     const [weeklyIncome, setWeeklyIncome] = useState<number>(0);
-    const [data, setData] = useState<any>(null);
 
     interface PieChartData {
         labels: string[];

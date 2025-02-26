@@ -44,11 +44,11 @@ export default function Dashboard() {
     const [totalExpense, setTotalExpense] = useState<number>(0);
     const [balance, setBalance] = useState(0);
 
-    const [loading, setLoading] = useState(true);
+   // const [loading, setLoading] = useState(true);
 
     const fetchTransactions = async () => {
         if (!user) return;
-        setLoading(true);
+       // setLoading(true);
 
         const {data, error} = await supabase
         .from('transactions')
@@ -65,7 +65,7 @@ export default function Dashboard() {
             setChartData(chartData);
             
         }
-        setLoading(false);
+        //setLoading(false);
     }
 
     type Transaction = {
@@ -93,7 +93,7 @@ const calculateTotals = (transactions: Transaction[]) => {
 
     const fetchGoals = async () => {
         if (!user) return;
-        setLoading(true);
+       // setLoading(true);
 
         const {data, error} = await supabase
         .from('goals')
@@ -107,7 +107,7 @@ const calculateTotals = (transactions: Transaction[]) => {
             setGoal(data);
             console.log(data)
         }
-        setLoading(false);
+        //setLoading(false);
     }
 
     useEffect(() => {
@@ -208,29 +208,9 @@ const options = {
     }
 };
 
-
-
-
-
-
-    const categories = [
-        { name: 'Category A', value: 300 },
-        { name: 'Category B', value: 500 },
-        { name: 'Category C', value: 200 },
-      ];
     
       // Prepare data for the pie chart
-      const pieChartData = {
-        labels: categories.map((category) => category.name), // Labels for the segments
-        datasets: [
-          {
-            data: categories.map((category) => category.value), // Values for the segments
-            backgroundColor: ['#4CAF50', '#FFC107', '#F44336'], // Colors for the segments
-            borderColor: ['#4CAF50', '#FFC107', '#F44336'], // Border colors
-            borderWidth: 1,
-          },
-        ],
-      };
+ 
     
     return (
         <Container className='px-0 100vh'>

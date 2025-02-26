@@ -7,7 +7,7 @@ export default function Profile() {
     const { user } = useUser();
     console.log("Current User:", user?.email, "User ID:", user?.id);
 
-    const [loading, setLoading] = useState(true);
+    //const [loading, setLoading] = useState(true);
     const [userData, setUserData] = useState({
         name: '',
         email: '',
@@ -20,7 +20,7 @@ export default function Profile() {
     // Fetch user details from Supabase
     const fetchUser = async () => {
         if (!user?.id) return;
-        setLoading(true);
+       // setLoading(true);
 
         const { data, error } = await supabase
             .from('users')
@@ -41,7 +41,7 @@ export default function Profile() {
                 occupation: data.occupation || ''
             });
         }
-        setLoading(false);
+        //setLoading(false);
     };
 
     useEffect(() => {

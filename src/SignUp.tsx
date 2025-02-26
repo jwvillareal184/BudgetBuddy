@@ -1,7 +1,7 @@
 import { Container, Form, Button, Row, Col, Image } from 'react-bootstrap';
 import { useState } from 'react';
 import { supabase } from './supabaseClient'; // Ensure this is the correct Supabase client import
-import bcrypt from 'bcryptjs';
+//import bcrypt from 'bcryptjs';
 
 export default function SignUp() {
     const [formData, setFormData] = useState({
@@ -18,17 +18,17 @@ export default function SignUp() {
     const [successMessage, setSuccessMessage] = useState('');
 
     // Handle input changes
-    const handleChange = (e) => {
+    const handleChange = ( e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
 
 
-    const handleSignUp = async (e) => {
-        e.preventDefault();
+    const handleSignUp = async () => {
+        //e.preventDefault();
         setErrorMessage('');
         setSuccessMessage('');
 
-        const { email, password, name, contact, birthDate, occupation, created_at } = formData;
+        const { email, password, name, contact, birthDate, occupation } = formData;
 
         // Supabase Sign-Up
         const { data, error } = await supabase.auth.signUp({

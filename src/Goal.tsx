@@ -1,7 +1,7 @@
 import {useState, useEffect} from 'react'
-import {Container, Modal, Image, Row, Col, Table, Button, Form, ProgressBar} from 'react-bootstrap'
+import {Container, Modal, Row, Col, Table, Button, Form, ProgressBar} from 'react-bootstrap'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faTrash, faEdit, faPesoSign, faCalendar, faNoteSticky } from '@fortawesome/free-solid-svg-icons';
+import { faTrash, faEdit} from '@fortawesome/free-solid-svg-icons';
 import { useUser } from './UserContext';
 import { supabase } from './supabaseClient';
 
@@ -135,12 +135,7 @@ export default function Goal() {
             console.error("Error updating Goal:", error);
         }
     };
-
-    const currentValue = 789;
-    const totalValue = 1000;
   
-    // Calculate the progress percentage
-    const progressPercentage = ((currentValue / totalValue) * 100).toFixed(1); 
 
     const handleShowAddModal = () => {
         setShowAddModal(true);
@@ -182,7 +177,7 @@ export default function Goal() {
                                                     </Row>
                                                     <Row className='mx-0 px-0'>
                                                         <Col className='mx-0 px-0 mt-3'>
-                                                            <div style={{ width: '100px', height: '100px' }}>
+                                                            <Container fluid style={{ width: '100px', height: '100px' }}>
                                                                 <div className="d-flex justify-content-center mt-2">
                                                                     <span className="fw-bold">{goal.current_amount} / {goal.target_amount}</span>
                                                                 </div>
@@ -196,7 +191,7 @@ export default function Goal() {
                                                                     />
                                                                 </ProgressBar>
 
-                                                            </div>
+                                                            </Container>
                                                         </Col>
                                                         <Col className="d-flex justify-content-end align-items-center border-0">
                                                             <div className="button-container">

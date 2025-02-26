@@ -322,7 +322,7 @@ export default function Expense() {
       Trend
     </h4>
     <Container fluid className="flex-grow-1 d-flex justify-content-center align-items-center">
-  <div style={{ width: "100%", height: "100%" }}> 
+  <Container fluid style={{ width: "100%", height: "100%" }}> 
     {data ? (
       <Bar
         data={data}
@@ -341,7 +341,7 @@ export default function Expense() {
     ) : (
       <p>No data available</p>
     )}
-  </div>
+  </Container>
 </Container>
 
   </Container>

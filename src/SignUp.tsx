@@ -1,14 +1,13 @@
-import { Container, Form, Button, Row, Col, Image } from 'react-bootstrap';
+import { Container, Form, Row, Col, Image } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
-import { supabase } from './supabaseClient'; // Ensure this is the correct Supabase client import
+import { supabase } from './supabaseClient';
 import BudgetBuddyLogo from "./assets/BudgetBuddyLogo 1.png";
 
 export default function SignUp() {
     const navigate = useNavigate();
-    const handleBack = () => {
-        navigate('/')
-    }
+    const handleBack = () => navigate('/');
+
     const [formData, setFormData] = useState({
         name: '',
         email: '',
@@ -23,11 +22,11 @@ export default function SignUp() {
     const [successMessage, setSuccessMessage] = useState('');
 
     // Handle input changes
-    const handleChange = (e) => {
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
 
-    const handleSignUp = async (e) => {
+    const handleSignUp = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         setErrorMessage('');
         setSuccessMessage('');
@@ -53,11 +52,11 @@ export default function SignUp() {
                         id: data.user.id,
                         name,
                         email,
-                        contact, // Ensure this is a valid text value
-                        birthDate: new Date(birthDate).toISOString().split('T')[0], // Convert to valid date format
+                        contact,
+                        birthDate: new Date(birthDate).toISOString().split('T')[0],
                         occupation,
                         location,
-                        created_at: new Date().toISOString(), // Ensure this is a valid timestamp
+                        created_at: new Date().toISOString(),
                         password,
                     },
                 ]);
@@ -78,11 +77,14 @@ export default function SignUp() {
                     location: 'N/A',
                 });
             }
-        } catch (err) {
-            setErrorMessage('An unexpected error occurred: ' + err.message);
+        } catch (err: unknown) {
+            if (err instanceof Error) {
+                setErrorMessage('An unexpected error occurred: ' + err.message);
+            } else {
+                setErrorMessage('An unexpected error occurred.');
+            }
         }
     };
-    
 
     return (
         <Container fluid className='background d-flex justify-content-center align-items-center'>

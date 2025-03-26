@@ -247,7 +247,7 @@ const options = {
                                         </Carousel.Item>
                                     ))
                                 ) : (
-                                    <div>No goals available</div>
+                                    <div className='d-flex justify-content-center align-items-center'>No goals available</div>
                                 )}
                             </Carousel>
                         </Container>

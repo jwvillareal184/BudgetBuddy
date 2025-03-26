@@ -12,23 +12,22 @@ import SignUp from "./SignUp";
 import RequestNewPassword from "./RequestNewPassword";
 
 function App() {
-  const {isLoggedIn } = useUser();
+  const { isLoggedIn } = useUser();
 
   return (
     <Router>
-      {isLoggedIn && <Navigation />}
       <Routes>
-        <Route path="/" element={isLoggedIn ? <Navigate to="/dashboard" replace /> : <LoginPage />} />
+        <Route path="/" element={<LoginPage />} />
         <Route path="/signup" element={<SignUp />} />
         <Route path="/request-new-password" element={<RequestNewPassword />} />
         {isLoggedIn ? (
           <>
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/expense" element={<Expense />} />
-            <Route path="/income" element={<Income />} />
-            <Route path="/goal" element={<Goal />} />
-            <Route path="/profile" element={<Profile />} />
-            <Route path="/change-password" element={<ChangePassword />} />
+            <Route path="/dashboard" element={<><Navigation /><Dashboard /></>} />
+            <Route path="/expense" element={<><Navigation /><Expense /></>} />
+            <Route path="/income" element={<><Navigation /><Income /></>} />
+            <Route path="/goal" element={<><Navigation /><Goal /></>} />
+            <Route path="/profile" element={<><Navigation /><Profile /></>} />
+            <Route path="/change-password" element={<><Navigation /><ChangePassword /></>} />
             <Route path="*" element={<Navigate to="/dashboard" />} />
           </>
         ) : (

@@ -211,7 +211,7 @@ export default function Goal() {
                                         ))
                                     ) : (
                                         <tr>
-                                            <td>No Goal Recorded</td>
+                                            <td className='d-flex justify-content-center align-items-center'>No Goal Recorded</td>
                                         </tr>
                                     )}
 

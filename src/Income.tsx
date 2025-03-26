@@ -351,7 +351,7 @@ export default function Income() {
                                  ))
                             ) : ( 
                                 <tr> 
-                                    <td>No transactions found</td> 
+                                    <td className='d-flex justify-content-center align-items-center'>No transactions found</td> 
                                 </tr>
                             )}
 

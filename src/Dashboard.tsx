@@ -4,6 +4,7 @@ import { Line } from 'react-chartjs-2'; // Import Pie chart
 import { Chart as ChartJS, ArcElement, Tooltip, Legend,  CategoryScale, LinearScale, PointElement, LineElement, Title } from 'chart.js';
 import { useUser } from './UserContext';
 import { supabase } from './supabaseClient';
+import Frame2 from "./assets/Frame 2.png"
 
 // Register the components
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, ArcElement, Title, Tooltip, Legend);
@@ -217,7 +218,7 @@ const options = {
       <Row className="d-md-flex flex-md-row mx-0 px-0 custom-height-up mt-4 mb-4 h-100">
             <Col xs={12} md={4} className="d-flex align-items-center justify-content-center  ">
                 <Container fluid className='rounded mt-2 position-relative h-100'>
-                <Image fluid src="./Frame 2.png" className="shadow-sm rounded w-100 h-100 position-absolute top-0 start-0" style={{ objectFit: "cover", zIndex: "-1" }}/>
+                <Image fluid src={Frame2} className="shadow-sm rounded w-100 h-100 position-absolute top-0 start-0" style={{ objectFit: "cover", zIndex: "-1" }}/>
                         
                         {/* Container fits inside Col */}
                         <Container fluid className=" mt-3 position-relative ">

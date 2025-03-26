@@ -3,6 +3,7 @@ import { NavLink, useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faUser } from "@fortawesome/free-solid-svg-icons";
 import { useUser } from "./UserContext"; // Ensure you import useUser
+import BudgetBuddyLogo from "./assets/BudgetBuddyLogo 1.png"
 
 export default function Navigation() {
   const { isLoggedIn, logout } = useUser();
@@ -19,7 +20,7 @@ export default function Navigation() {
         <Navbar expand="xxl" className="bg-custom-color4" sticky="top">
           <Container>
             <Navbar.Brand href="#home" className="me-5 mt-2">
-              <Image src="./BudgetBuddyLogo 1.png" style={{ width: "120px" }} />
+              <Image src={BudgetBuddyLogo} style={{ width: "120px" }} />
             </Navbar.Brand>
             <Navbar.Toggle
               aria-controls="basic-navbar-nav"

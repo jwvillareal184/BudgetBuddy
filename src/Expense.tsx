@@ -6,6 +6,7 @@ import { Bar } from 'react-chartjs-2'; // Import Bar for the bar chart
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
 import { useUser } from './UserContext';
 import { supabase } from './supabaseClient';
+import Frame2 from "./assets/Frame 2.png"
 // Register Chart.js components
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 type TransactionType = {
@@ -292,7 +293,7 @@ export default function Expense() {
                         <Container fluid className="h-100 position-relative">
                             {/* Background Image */}
                             <Image 
-                                src="./Frame 2.png" 
+                                src={Frame2}
                                 className="shadow-sm rounded w-100 h-100 position-absolute top-0 start-0"
                                 style={{ objectFit: "cover", zIndex: "-1" }}
                             />

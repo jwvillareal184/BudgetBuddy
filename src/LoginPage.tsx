@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useUser } from './UserContext';
 import { useNavigate } from 'react-router-dom';
 import { Container, Form, Image, Button } from 'react-bootstrap';
+import BudgetBuddyLogo from "./assets/BudgetBuddyLogo 1.png"
 import './App.css';
 
 const LoginPage: React.FC = () => {
@@ -50,7 +51,7 @@ const LoginPage: React.FC = () => {
       >
         {/* Logo and Heading */}
         <Container fluid className="text-center mb-4">
-          <Image src="BudgetBuddyLogo 1.png" fluid style={{ width: '150px' }} />
+          <Image src={BudgetBuddyLogo} fluid style={{ width: '150px' }} />
           <h1 className="fw-bold custom-font-color1 custom-font-family mt-3">Login</h1>
         </Container>
 

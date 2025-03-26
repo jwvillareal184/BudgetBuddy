@@ -6,6 +6,7 @@ import { Pie } from 'react-chartjs-2'; // Import Pie chart
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
 import { useUser } from './UserContext';
 import { supabase } from './supabaseClient';
+import Frame2 from "./assets/Frame 2.png"
 
 // Register required Chart.js components
 ChartJS.register(ArcElement, Tooltip, Legend);
@@ -265,7 +266,7 @@ export default function Income() {
                         <Container fluid className="h-100 position-relative">
                             {/* Background Image */}
                             <Image 
-                                src="./Frame 2.png" 
+                                src={Frame2}
                                 className="shadow-sm rounded w-100 h-100 position-absolute top-0 start-0"
                                 style={{ objectFit: "cover", zIndex: "-1" }}
                             />

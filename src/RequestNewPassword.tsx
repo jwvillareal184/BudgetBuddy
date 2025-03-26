@@ -3,6 +3,7 @@ import { Container, Form, Image, Button } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 //import { Resend } from 'resend';
 import { supabase } from './supabaseClient';
+import BudgetBuddyLogo from "./assets/BudgetBuddyLogo 1.png"
 
 export default function RequestNewPassword() {
     const [email, setEmail] = useState('');
@@ -75,7 +76,7 @@ export default function RequestNewPassword() {
             <Container className='bg-white rounded d-block' style={{ height: '75vh', width: '30vw', background: "linear-gradient(to bottom, #1F2544, #474F7A, #FFD0EC)", minWidth: '400px' }}>
                 <Container fluid className='mb-3 mt-5'>
                     <Container className='d-flex justify-content-center align-items-center mt-4'>
-                        <Image src='BudgetBuddyLogo 1.png' fluid style={{ width: '180px' }} />
+                        <Image src={BudgetBuddyLogo} fluid style={{ width: '180px' }} />
                     </Container>
                     <h1 className='fw-bold custom-font-color1 text-center mt-2 custom-font-family'>Request New Password</h1>
                 </Container>

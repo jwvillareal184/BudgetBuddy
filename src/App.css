@@ -24,7 +24,7 @@
   height: 100vh;
   top: 0;
   left: 0;
-  background: url('./background.png');
+  background: url('./assets/background.png');
   background-size: cover; /* Ensures full coverage */
   background-position: center;
   background-repeat: no-repeat;

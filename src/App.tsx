@@ -10,6 +10,7 @@ import Profile from "./Profile";
 import ChangePassword from "./ChangePassword";
 import SignUp from "./SignUp";
 import RequestNewPassword from "./RequestNewPassword";
+import ResetPass from "./ResetPass";
 
 function App() {
   const { isLoggedIn } = useUser();
@@ -20,6 +21,7 @@ function App() {
         <Route path="/" element={<LoginPage />} />
         <Route path="/signup" element={<SignUp />} />
         <Route path="/request-new-password" element={<RequestNewPassword />} />
+        <Route path="/reset-password" element={<ResetPass />} />
         {isLoggedIn ? (
           <>
             <Route path="/dashboard" element={<><Navigation /><Dashboard /></>} />

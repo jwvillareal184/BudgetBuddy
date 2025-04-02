@@ -21,7 +21,7 @@ export default function RequestNewPassword() {
 
         // Use Supabase Auth to send a password reset email
         const { error } = await supabase.auth.resetPasswordForEmail(email, {
-            redirectTo: "https://budget-buddy-sshn.vercel.app/reset-password" // Change to your actual frontend URL
+            redirectTo: `${window.location.origin}/reset-password` // Change to your actual frontend URL
         });
 
         if (error) {
